@@ -14,8 +14,12 @@ class Tag(models.Model):
     def __str__(self):
         return self.name
 
+class PublicBookmarkManager(models.Manager):
+    def get_queryset(self):
+        qs = super(PublicBookmarkManager, self).get_queryset()
+        return qs.filter(is_public=True)
 
-@python_2_unicode_compatible   
+  
 class Bookmark(models.Model):
     url = models.URLField()
     title = models.CharField('title', max_length=255)
@@ -27,12 +31,15 @@ class Bookmark(models.Model):
         related_name='bookmarks')
     tags = models.ManyToManyField(Tag, blank=True)
 
+    objects = models.Manager()
+    public = PublicBookmarkManager()
+
     class Meta:
         verbose_name = 'bookmark'
         verbose_name_plural = 'bookmarks'
         ordering = ['-date_created']
 
-        def __str__(self):
+    def __str__(self):
         return '%s (%s)' % (self.title, self.url)
 
     def save(self, *args, **kwargs):
